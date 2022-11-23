@@ -38,6 +38,13 @@ public class Controller : MonoBehaviour
     [SerializeField] TextMeshProUGUI solarTimeRegion;
     [SerializeField] TextMeshProUGUI solarTimeGMT;
 
+    // UTC
+    [SerializeField] TextMeshProUGUI solarDateUTC;
+    [SerializeField] TextMeshProUGUI solarTimeUTC;
+    [SerializeField] TextMeshProUGUI solarTimeSuffixUTC;
+    [SerializeField] TextMeshProUGUI solarTimeRegionUTC;
+    [SerializeField] TextMeshProUGUI solarTimeGMTUTC;
+
     // Lunar calender
     [SerializeField] TextMeshProUGUI lunarDate;
     [SerializeField] TextMeshProUGUI lunarTime;
@@ -45,26 +52,34 @@ public class Controller : MonoBehaviour
     [SerializeField] TextMeshProUGUI lunarTimeRegion;
     [SerializeField] TextMeshProUGUI lunarTimeGMT;
 
-    [SerializeField] Toggle solarToggle;
-    [SerializeField] Toggle lunarToggle;
+    [SerializeField] Toggle[] toggles;
+    [SerializeField] GameObject[] calenderObj;
 
     [SerializeField] Button leftGMT;
     [SerializeField] Button rightGMT;
 
     private void Start()
     {
-        
+        for(int i = 0; i < toggles.Length; i++)
+        {
+            int j = i;
+            toggles[i].onValueChanged.AddListener(delegate { CalenderHandler(j); });
+
+            toggles[i].isOn = true;
+        }
+
     }
 
     private void Update()
     {
         UpdateSolarTime(DateTime.Now);
+        UpdateSolarTimeUTC(DateTime.UtcNow);
         UpdateLunarTime(DateTime.Now);
     }
 
-    public void SetRegion()
+    public void CalenderHandler(int index)
     {
-
+        calenderObj[index].SetActive(toggles[index].isOn);
     }
 
     private string[] months = {"January", "Frebruary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -74,6 +89,14 @@ public class Controller : MonoBehaviour
         solarTime.text = GetDoubleTimeString(date.Hour) + ":" + GetDoubleTimeString(date.Minute) + ":" + GetDoubleTimeString(date.Second);
         solarTimeSuffix.text = date.ToString("tt");
         solarTimeRegion.text = TimeZoneInfo.Local.ToString();
+    }
+
+    public void UpdateSolarTimeUTC(DateTime date)
+    {
+        solarDateUTC.text = date.DayOfWeek.ToString() + ", " + months[date.Month - 1] + " " + date.Day + ", " + date.Year;
+        solarTimeUTC.text = GetDoubleTimeString(date.Hour) + ":" + GetDoubleTimeString(date.Minute) + ":" + GetDoubleTimeString(date.Second);
+        solarTimeSuffixUTC.text = date.ToString("tt");
+        solarTimeRegionUTC.text = TimeZoneInfo.Utc.ToString();
     }
 
     public void UpdateLunarTime(DateTime date)
